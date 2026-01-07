@@ -16,15 +16,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY backend/ ./backend/
+# We keep frontend scripts for reference, but Render will only run the API
 COPY frontend/ ./frontend/
 
-# Expose ports
-EXPOSE 8000 8501
+# Render provides the PORT environment variable
+ENV PORT=8000
 
-# Create startup script
-RUN echo '#!/bin/bash\n\
-python -m backend.main &\n\
-streamlit run frontend/dashboard.py --server.port=8501 --server.address=0.0.0.0\n\
-' > /app/start.sh && chmod +x /app/start.sh
-
-CMD ["/app/start.sh"]
+# Start only the FastAPI backend (Optimized for Render)
+CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT}"]
