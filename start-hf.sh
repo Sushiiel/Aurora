@@ -93,14 +93,5 @@ echo -e "${YELLOW}Logs are available in the Hugging Face Space logs tab${NC}"
 echo ""
 
 # Keep the script running and monitor the backend
-while true; do
-    if ! ps -p $BACKEND_PID > /dev/null; then
-        echo -e "${RED}Backend process died, restarting...${NC}"
-        python -m uvicorn backend.main:app \
-            --host 0.0.0.0 \
-            --port $API_PORT \
-            --log-level info &
-        BACKEND_PID=$!
-    fi
-    sleep 10
-done
+# Monitor the backend process
+wait $BACKEND_PID
