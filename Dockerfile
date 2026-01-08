@@ -24,7 +24,7 @@ COPY scripts/ ./scripts/
 # Copy frontend code and build
 COPY web/ ./web/
 WORKDIR /app/web
-RUN npm install && npm run build
+RUN npm install && npx vite build
 
 # Move built frontend to nginx serve directory
 RUN mkdir -p /usr/share/nginx/html && \
