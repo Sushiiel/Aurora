@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy backend code
 COPY backend/ ./backend/
 COPY scripts/ ./scripts/
-COPY credentials.json ./credentials.json
+
 
 # Copy frontend code and build
 COPY web/ ./web/
