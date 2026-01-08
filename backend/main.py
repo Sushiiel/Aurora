@@ -170,8 +170,9 @@ async def log_metrics(
     metrics: Dict[str, Any],
     db: Session = Depends(get_db_session)
 ):
-    """Log model metrics"""
+    """Log model metrics and trigger auto-analysis"""
     try:
+        # 1. Log the raw metrics
         metric_record = ModelMetrics(
             model_name=metrics.get("model_name", "unknown"),
             model_version=metrics.get("model_version", "1.0"),
@@ -187,7 +188,29 @@ async def log_metrics(
         db.add(metric_record)
         db.commit()
         
-        return {"status": "success", "id": metric_record.id}
+        # 2. Trigger Active Analysis (The "Agentic" part)
+        analysis_context = {
+            "model_metrics": metrics,
+            "data_drift": {
+                "detected": metrics.get("data_drift_score", 0) > 0.3,
+                "score": metrics.get("data_drift_score", 0)
+            },
+            "system_load": {"cpu": 0.45} # Simulated for now
+        }
+        
+        # Call the analysis logic directly
+        # Note: In a real heavy system, this would be a background task
+        decision_result = await analyze_system(analysis_context, db)
+        
+        optimization_triggered = decision_result["critic_decision"]["decision_type"] != "no_action"
+        action = decision_result["critic_decision"].get("recommended_actions", {}).get("action", "none")
+        
+        return {
+            "status": "success", 
+            "id": metric_record.id,
+            "optimization_triggered": optimization_triggered,
+            "action": action
+        }
         
     except Exception as e:
         logger.error(f"Failed to log metrics: {e}")

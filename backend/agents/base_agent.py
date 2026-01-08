@@ -28,6 +28,7 @@ class AgentDecisionType(Enum):
     SCALE = "scale"
     ALERT = "alert"
     NO_ACTION = "no_action"
+    OPTIMIZE_MODEL = "optimize_model"
 
 
 class AgentDecision:

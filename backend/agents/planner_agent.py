@@ -106,37 +106,33 @@ class PlannerAgent(BaseAgent):
         drift_score = data_drift.get("score", 0.0)
         latency = model_metrics.get("latency_ms", 0)
         
-        # Check for critical issues first
-        if accuracy < 0.7 and drift_detected:
+        # 1. Critical Performance Drop (e.g., Lighting Change)
+        if accuracy < 0.60:
             return AgentDecision(
-                decision_type=AgentDecisionType.RETRAIN,
+                decision_type=AgentDecisionType.OPTIMIZE_MODEL,  # Use generic type, pass specific action
                 reasoning=(
-                    f"Model accuracy ({accuracy:.2%}) is critically low and "
-                    f"data drift detected (score: {drift_score:.2f}). "
-                    f"Retraining recommended based on {len(similar_cases)} similar cases."
+                     f"CRITICAL: Accuracy dropped to {accuracy:.2%}. "
+                     f"Drift Score: {drift_score:.2f}. "
+                     f"Environment change detected (likely lighting/noise)."
                 ),
-                confidence=0.95,
-                context={
-                    "model_metrics": model_metrics,
-                    "data_drift": data_drift,
-                    "similar_cases_count": len(similar_cases)
-                },
+                confidence=0.98,
+                context=model_metrics,
                 recommended_actions={
-                    "action": "retrain",
-                    "priority": "high",
-                    "estimated_time": "2-4 hours"
+                    "action": "switch_model",
+                    "target_model": "resnet_night_vision",
+                    "priority": "critical"
                 }
             )
-        
-        # Check for moderate drift
-        if drift_detected and drift_score > 0.5:
+
+        # 2. Check for moderate drift
+        if drift_detected and drift_score > 0.4:  # Lowered from 0.5
             return AgentDecision(
                 decision_type=AgentDecisionType.FINE_TUNE,
                 reasoning=(
                     f"Moderate data drift detected (score: {drift_score:.2f}). "
-                    f"Fine-tuning may be sufficient. Current accuracy: {accuracy:.2%}"
+                    f"Fine-tuning recommended to maintain performance."
                 ),
-                confidence=0.80,
+                confidence=0.85,
                 context={
                     "data_drift": data_drift,
                     "model_metrics": model_metrics
