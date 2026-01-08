@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Rocket, LayoutDashboard, Bot, Activity, Brain,
     Search, RefreshCw, CheckCircle2,
-    AlertTriangle, Cpu, TrendingUp, Database, Command, ExternalLink, Zap, LogOut
+    AlertTriangle, Cpu, TrendingUp, Database, Command, ExternalLink, Zap, LogOut, Menu, X
 } from 'lucide-react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
@@ -83,6 +83,7 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('dashboard');
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // Real Data State
     const [metrics, setMetrics] = useState<Metric[]>([]);
@@ -197,27 +198,66 @@ export default function Dashboard() {
     return (
         <div className="flex h-screen bg-aurora-bg overflow-hidden text-gray-200 font-sans selection:bg-aurora-blue/30">
 
+            {/* Mobile Sidebar Overlay Backdrop */}
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <div className="w-64 bg-aurora-dark border-r border-white/5 flex flex-col">
-                <div className="p-6 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-aurora-blue to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-aurora-blue/20">
-                        <Rocket className="text-white w-6 h-6" />
+            <div className={clsx(
+                "fixed inset-y-0 left-0 z-50 w-64 bg-aurora-dark border-r border-white/5 flex flex-col transition-transform duration-300 md:relative md:translate-x-0",
+                isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            )}>
+                <div className="p-6 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-aurora-blue to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-aurora-blue/20">
+                            <Rocket className="text-white w-6 h-6" />
+                        </div>
+                        <div>
+                            <h1 className="font-bold text-xl text-white tracking-tight">AURORA</h1>
+                            <p className="text-xs text-aurora-blue font-medium">v1.2.0 Pro</p>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="font-bold text-xl text-white tracking-tight">AURORA</h1>
-                        <p className="text-xs text-aurora-blue font-medium">v1.2.0 Pro</p>
-                    </div>
+                    {/* Mobile Close Button */}
+                    <button
+                        onClick={() => setIsSidebarOpen(false)}
+                        className="md:hidden text-gray-400 hover:text-white"
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
                 </div>
 
-                <div className="px-4 py-2 space-y-2 flex-1">
-                    <SidebarItem icon={LayoutDashboard} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
-                    <SidebarItem icon={Bot} label="Agents" active={activeTab === 'agents'} onClick={() => setActiveTab('agents')} />
-                    <SidebarItem icon={Activity} label="Metrics" active={activeTab === 'metrics'} onClick={() => setActiveTab('metrics')} />
-                    <SidebarItem icon={Brain} label="Memory" active={activeTab === 'memory'} onClick={() => setActiveTab('memory')} />
+                <div className="px-4 py-2 space-y-2 flex-1 overflow-y-auto">
+                    <SidebarItem
+                        icon={LayoutDashboard}
+                        label="Dashboard"
+                        active={activeTab === 'dashboard'}
+                        onClick={() => { setActiveTab('dashboard'); setIsSidebarOpen(false); }}
+                    />
+                    <SidebarItem
+                        icon={Bot}
+                        label="Agents"
+                        active={activeTab === 'agents'}
+                        onClick={() => { setActiveTab('agents'); setIsSidebarOpen(false); }}
+                    />
+                    <SidebarItem
+                        icon={Activity}
+                        label="Metrics"
+                        active={activeTab === 'metrics'}
+                        onClick={() => { setActiveTab('metrics'); setIsSidebarOpen(false); }}
+                    />
+                    <SidebarItem
+                        icon={Brain}
+                        label="Memory"
+                        active={activeTab === 'memory'}
+                        onClick={() => { setActiveTab('memory'); setIsSidebarOpen(false); }}
+                    />
 
                     <div className="pt-4 mt-2 border-t border-white/5">
                         <SidebarItem icon={Zap} label="Connect Model" active={false} onClick={() => navigate('/connect')} />
-
                     </div>
                 </div>
 
@@ -237,7 +277,7 @@ export default function Dashboard() {
                         <span>API Playground</span>
                     </a>
 
-                    <div className="bg-aurora-card rounded-xl p-4 border border-white/5">
+                    <div className="bg-aurora-card rounded-xl p-4 border border-white/5 hidden md:block">
                         <div className="flex items-center gap-2 mb-3">
                             <Cpu className="w-4 h-4 text-aurora-blue" />
                             <span className="text-sm font-medium">System Status</span>
@@ -260,12 +300,21 @@ export default function Dashboard() {
                 <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-aurora-blue/5 to-transparent pointer-events-none" />
 
                 {/* Header */}
-                <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-aurora-bg/80 backdrop-blur-md z-10">
+                <header className="h-16 border-b border-white/5 flex items-center justify-between px-4 md:px-8 bg-aurora-bg/80 backdrop-blur-md z-10 sticky top-0">
                     <div className="flex items-center gap-4">
-                        <h2 className="text-xl font-semibold text-white capitalize">{activeTab}</h2>
+                        {/* Mobile Menu Toggle */}
+                        <button
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="md:hidden text-gray-400 hover:text-white p-1"
+                        >
+                            <Menu className="w-6 h-6" />
+                        </button>
+
+                        <h2 className="text-xl font-semibold text-white capitalize hidden sm:block">{activeTab}</h2>
                         <span className="px-3 py-1 bg-aurora-success/10 text-aurora-success text-xs font-medium rounded-full border border-aurora-success/20 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-aurora-success animate-pulse" />
-                            System Online
+                            <span className="hidden sm:inline">System Online</span>
+                            <span className="sm:hidden">Online</span>
                         </span>
 
                         {/* Model Selector */}
@@ -293,7 +342,7 @@ export default function Dashboard() {
                 </header>
 
                 {/* Dashboard Content */}
-                <main className="flex-1 overflow-y-auto p-8 scroll-smooth">
+                <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
                     <AnimatePresence mode='wait'>
 
                         {/* --- DASHBOARD TAB --- */}
