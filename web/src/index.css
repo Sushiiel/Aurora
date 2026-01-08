@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  background-color: #0a0e27;
+  color: #c5d0e6;
+  font-family: 'Inter', sans-serif;
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-aurora-card/60 backdrop-blur-xl border border-aurora-blue/20 shadow-lg;
+  }
+  
+  .glass-button {
+    @apply bg-gradient-to-r from-blue-600 to-aurora-blue hover:from-blue-500 hover:to-cyan-400 text-white shadow-lg shadow-aurora-blue/20 transition-all duration-300;
+  }
+  
+  .text-glow {
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0e27; 
+}
+ 
+::-webkit-scrollbar-thumb {
+  background: #1a1f3a; 
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00d4ff; 
+}

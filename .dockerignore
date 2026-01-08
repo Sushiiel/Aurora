@@ -1,0 +1,71 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+backend.log
+frontend.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database (local dev)
+*.db-journal
+
+# Documentation
+docs/
+*.md
+!README_HF.md
+
+# CI/CD
+.github/
+
+# Local env files
+.env
+.env.local
+.env.*.local
+
+# Test files
+tests/
+test_*.py
+*_test.py
+
+# Build artifacts
+web/dist/
+web/.vite/
+
+# Misc
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
