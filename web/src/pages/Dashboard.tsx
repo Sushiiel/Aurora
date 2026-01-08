@@ -185,7 +185,7 @@ export default function Dashboard() {
 
                     <div className="pt-4 mt-2 border-t border-white/5">
                         <SidebarItem icon={Zap} label="Connect Model" active={false} onClick={() => navigate('/connect')} />
-                        <SidebarItem icon={Wallet} label="Expense Tracker" active={false} onClick={() => navigate('/expenses')} />
+
                     </div>
                 </div>
 
