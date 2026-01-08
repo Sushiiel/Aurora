@@ -1,3 +1,13 @@
+---
+title: AURORA AI System
+emoji: 🚀
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+license: apache-2.0
+---
+
 # AURORA - Agentic Unified Reasoning & Optimization Runtime
 
 **AURORA** is an autonomous AI system that continuously monitors, reasons about, and optimizes ML infrastructure in real-time using a multi-agent architecture and RAG memory.
