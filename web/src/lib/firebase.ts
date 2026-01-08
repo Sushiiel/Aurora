@@ -10,5 +10,21 @@ const firebaseConfig = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+let app;
+let auth;
+
+try {
+    if (firebaseConfig.apiKey) {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+    } else {
+        console.warn("Firebase API key missing. Auth will not work.");
+        // Mock auth to prevent crash on import
+        auth = { currentUser: null } as any;
+    }
+} catch (error) {
+    console.error("Firebase initialization error:", error);
+    auth = { currentUser: null } as any;
+}
+
+export { auth };
