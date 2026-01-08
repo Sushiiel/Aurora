@@ -1,30 +1,17 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
+// Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID
+    apiKey: "AIzaSyDwUwwPTYjavLyUqXnDd0EYzvJ24K0V0rs",
+    authDomain: "aurora-259bb.firebaseapp.com",
+    projectId: "aurora-259bb",
+    storageBucket: "aurora-259bb.firebasestorage.app",
+    messagingSenderId: "5987069700",
+    appId: "1:5987069700:web:f054becce1cb5e8023aa51",
+    measurementId: "G-KRKVPNH1F7"
 };
 
-let app;
-let auth;
-
-try {
-    if (firebaseConfig.apiKey) {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-    } else {
-        console.warn("Firebase API key missing. Auth will not work.");
-        // Mock auth to prevent crash on import
-        auth = { currentUser: null } as any;
-    }
-} catch (error) {
-    console.error("Firebase initialization error:", error);
-    auth = { currentUser: null } as any;
-}
-
-export { auth };
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
