@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Camera AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen p-8">
+
+    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <!-- Left: Camera Feed -->
+        <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <i class="fas fa-camera text-blue-400"></i> Live Feed
+                </h2>
+                <span class="px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded-full animate-pulse">● LIVE</span>
+            </div>
+
+            <div
+                class="relative bg-black h-64 rounded-xl flex items-center justify-center overflow-hidden border border-gray-600 group">
+                <i class="fas fa-user text-6xl text-gray-700 group-hover:text-gray-600 transition"></i>
+
+                <!-- Bounding Box -->
+                <div id="bbox" class="absolute w-32 h-32 border-2 border-green-500 hidden top-10 left-10 rounded-lg">
+                    <span class="absolute -top-6 left-0 bg-green-500 text-black text-xs font-bold px-1">Person
+                        99%</span>
+                </div>
+            </div>
+
+            <div class="mt-6 flex gap-4">
+                <button onclick="snap('Daylight')"
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 p-3 rounded-xl font-semibold transition">
+                    <i class="fas fa-sun mr-2"></i> Daylight Snap
+                </button>
+                <button onclick="snap('Low Light')"
+                    class="flex-1 bg-purple-600 hover:bg-purple-700 p-3 rounded-xl font-semibold transition">
+                    <i class="fas fa-moon mr-2"></i> Low Light Snap
+                </button>
+            </div>
+            <button onclick="resetModel()"
+                class="w-full mt-2 bg-gray-700 hover:bg-gray-600 p-2 rounded-lg text-sm transition">
+                Reset System
+            </button>
+        </div>
+
+        <!-- Right: Analysis & AURORA -->
+        <div class="space-y-6">
+
+            <!-- Analysis Card -->
+            <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-microchip text-yellow-400"></i> Local Analysis
+                </h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Detected:</span>
+                        <span id="class" class="font-bold">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Confidence:</span>
+                        <span id="conf" class="font-bold text-blue-400">--</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Active Model:</span>
+                        <span id="model" class="font-mono text-xs bg-gray-700 px-2 py-1 rounded">MobileNet-v2
+                            (Standard)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AURORA Status -->
+            <div
+                class="bg-gradient-to-br from-indigo-900 to-blue-900 rounded-2xl p-6 border border-blue-700 relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <i class="fas fa-brain text-6xl"></i>
+                </div>
+                <h2 class="text-xl font-bold mb-2 flex items-center gap-2">
+                    <i class="fas fa-globe text-cyan-400"></i> AURORA Cloud
+                </h2>
+                <p class="text-sm text-blue-200 mb-4">Autonomous Model Orchestration</p>
+
+                <div id="aurora-log" class="bg-black/30 rounded-lg p-3 text-xs font-mono h-24 overflow-y-auto">
+                    Waiting for data...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function snap(lighting) {
+            log(`📸 Processing ${lighting} image...`);
+
+            const bbox = document.getElementById('bbox');
+            bbox.classList.add('hidden');
+
+            try {
+                const res = await fetch('/classify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lighting })
+                });
+                const data = await res.json();
+
+                // Update UI
+                document.getElementById('class').innerText = data.class;
+                document.getElementById('conf').innerText = (data.confidence * 100).toFixed(1) + "%";
+                document.getElementById('model').innerText = data.model;
+
+                // Show BBox
+                bbox.classList.remove('hidden');
+                if (data.confidence < 0.6) {
+                    bbox.classList.replace('border-green-500', 'border-red-500');
+                } else {
+                    bbox.classList.replace('border-red-500', 'border-green-500');
+                }
+
+                // Log Aurora
+                log(data.aurora_message);
+
+            } catch (e) {
+                log("❌ Error connecting to local app");
+            }
+        }
+
+        async function resetModel() {
+            await fetch('/reset', { method: 'POST' });
+            document.getElementById('model').innerText = "MobileNet-v2 (Standard)";
+            log("🔄 System Reset");
+        }
+
+        function log(msg) {
+            const el = document.getElementById('aurora-log');
+            el.innerHTML = `> ${msg}<br>` + el.innerHTML;
+        }
+    </script>
+</body>
+
+</html>

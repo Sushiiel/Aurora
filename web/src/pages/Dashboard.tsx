@@ -5,11 +5,11 @@ import { auth } from '../lib/firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Rocket, LayoutDashboard, Bot, Activity, Brain,
-    Settings, Bell, Search, RefreshCw, CheckCircle2,
-    AlertTriangle, Cpu, TrendingUp, Database, Command, ExternalLink, Zap, Wallet, LogOut
+    Search, RefreshCw, CheckCircle2,
+    AlertTriangle, Cpu, TrendingUp, Database, Command, ExternalLink, Zap, LogOut
 } from 'lucide-react';
 import {
-    LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
 import clsx from 'clsx';
 import { apiRequest, getApiDocsUrl } from '../utils/api';

@@ -6,6 +6,7 @@ from typing import Dict, Any, List
 import logging
 from backend.agents.base_agent import BaseAgent, AgentType, AgentDecision, AgentDecisionType
 from backend.rag.memory_store import MemoryStore
+from backend.utils.notifications import send_system_alert
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +109,13 @@ class PlannerAgent(BaseAgent):
         
         # 1. Critical Performance Drop (e.g., Lighting Change)
         if accuracy < 0.60:
+            # Trigger System Alert
+            await send_system_alert(
+                title=f"CRITICAL: Accuracy Low ({accuracy:.2%})",
+                message=f"Model performance critical. Drift Score: {drift_score:.2f}. Switching model recommended.",
+                category="AI Alert"
+            )
+            
             return AgentDecision(
                 decision_type=AgentDecisionType.OPTIMIZE_MODEL,  # Use generic type, pass specific action
                 reasoning=(
@@ -126,6 +134,13 @@ class PlannerAgent(BaseAgent):
 
         # 2. Check for moderate drift
         if drift_detected and drift_score > 0.4:  # Lowered from 0.5
+            # Trigger System Alert
+            await send_system_alert(
+                title=f"Data Drift Detected (Score: {drift_score:.2f})",
+                message=f"Moderate drift detected. Fine-tuning recommended.",
+                category="Drift Alert"
+            )
+
             return AgentDecision(
                 decision_type=AgentDecisionType.FINE_TUNE,
                 reasoning=(

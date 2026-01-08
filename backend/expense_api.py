@@ -21,7 +21,7 @@ memory_store = MemoryStore(use_pinecone=False)
 planner_agent = PlannerAgent(memory_store)
 
 # n8n Webhook URL (from environment)
-N8N_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", "http://localhost:5678/webhook/expense-alert")
+N8N_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", "https://aurora123.app.n8n.cloud/webhook/expense-alert")
 
 
 @router.post("/expenses")

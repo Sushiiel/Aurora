@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     DollarSign, TrendingUp, TrendingDown, PieChart, Calendar,
-    Plus, Trash2, Mail, Bell, AlertCircle, CheckCircle2, Wallet
+    Plus, Trash2, Mail, Bell, AlertCircle, Wallet
 } from 'lucide-react';
-import { BarChart, Bar, PieChart as RechartsPie, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import clsx from 'clsx';
 import { apiRequest } from '../utils/api';
 
@@ -40,7 +40,7 @@ export default function ExpenseTracker() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [budgets, setBudgets] = useState<Budget[]>([]);
     const [totalSpent, setTotalSpent] = useState(0);
-    const [monthlyBudget, setMonthlyBudget] = useState(5000);
+    const monthlyBudget = 5000;
 
     // Form states
     const [showAddExpense, setShowAddExpense] = useState(false);
@@ -271,7 +271,7 @@ export default function ExpenseTracker() {
                                     fill="#8884d8"
                                     dataKey="value"
                                 >
-                                    {categoryData.map((entry, index) => (
+                                    {categoryData.map((_, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>

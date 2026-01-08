@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Review Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">AI</div>
+            <h1 class="text-xl font-bold text-gray-800">Review Analyzer</h1>
+        </div>
+
+        <p class="text-sm text-gray-500 mb-4">
+            Enter a customer review. This app uses an AI model and reports performance to
+            <span class="text-blue-600 font-semibold">AURORA</span>.
+        </p>
+
+        <textarea id="input" class="w-full h-32 p-3 border rounded-lg mb-4 focus:ring-2 ring-blue-500 outline-none"
+            placeholder="Type your review here..."></textarea>
+
+        <button onclick="analyze()" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+            Analyze Sentiment
+        </button>
+
+        <div id="result" class="mt-6 hidden p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm text-gray-500">Sentiment</span>
+                <span id="sentiment" class="font-bold text-gray-800"></span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-500">Confidence</span>
+                <span id="confidence" class="font-mono text-blue-600"></span>
+            </div>
+            <div class="mt-3 text-xs text-green-600 flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Metrics reported to AURORA
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function analyze() {
+            const text = document.getElementById('input').value;
+            if (!text) return;
+
+            const btn = document.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                const data = await res.json();
+
+                document.getElementById('result').classList.remove('hidden');
+                document.getElementById('sentiment').innerText = data.sentiment;
+                document.getElementById('confidence').innerText = (data.confidence * 100).toFixed(1) + '%';
+            } catch (e) {
+                alert('Error analyzing review');
+            }
+
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    </script>
+</body>
+
+</html>
