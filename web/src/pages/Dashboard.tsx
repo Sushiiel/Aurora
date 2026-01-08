@@ -88,6 +88,10 @@ export default function Dashboard() {
     const [decisions, setDecisions] = useState<BackendDecision[]>([]);
     const [chartData, setChartData] = useState<any[]>([]);
 
+    // Model Selection
+    const [selectedModel, setSelectedModel] = useState<string>('All');
+    const uniqueModels = Array.from(new Set(rawMetrics.map(m => m.model_name)));
+
     // Memory State
     const [memoryQuery, setMemoryQuery] = useState('');
     const [memoryResults, setMemoryResults] = useState<any[]>([]);
@@ -104,24 +108,7 @@ export default function Dashboard() {
             setRawMetrics(fetchedMetrics);
 
             if (fetchedMetrics.length > 0) {
-                const latest = fetchedMetrics[0];
-                const prev = fetchedMetrics[1] || latest;
-
-                const accDelta = (latest.accuracy - prev.accuracy) * 100;
-                const latDelta = latest.latency_ms - prev.latency_ms;
-
-                setMetrics([
-                    { label: 'Active Model', value: latest.model_name, delta: 'v1.0 Running', deltaType: 'neutral' },
-                    { label: 'Current Accuracy', value: `${(latest.accuracy * 100).toFixed(1)}%`, delta: `${accDelta > 0 ? '+' : ''}${accDelta.toFixed(1)}%`, deltaType: accDelta >= 0 ? 'positive' : 'negative' },
-                    { label: 'Latency', value: `${latest.latency_ms.toFixed(0)}ms`, delta: `${latDelta > 0 ? '+' : ''}${latDelta.toFixed(0)}ms`, deltaType: latDelta <= 0 ? 'positive' : 'negative' },
-                    { label: 'Data Integrity', value: `${(1 - latest.data_drift_score).toFixed(2)}`, delta: 'Drift Score', deltaType: 'positive' },
-                ]);
-
-                const newChartData = fetchedMetrics.slice(0, 20).reverse().map(m => ({
-                    time: new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-                    acc: (m.accuracy * 100).toFixed(1)
-                }));
-                setChartData(newChartData);
+                // Logic moved to useEffect
             }
 
             // Fetch Decisions
@@ -160,7 +147,40 @@ export default function Dashboard() {
         fetchData();
         const interval = setInterval(fetchData, 2000);
         return () => clearInterval(interval);
-    }, [activeTab]); // Re-fetch when tab changes to update context
+    }, [activeTab]);
+
+    // Filter Logic
+    useEffect(() => {
+        const filtered = selectedModel === 'All'
+            ? rawMetrics
+            : rawMetrics.filter(m => m.model_name === selectedModel);
+
+        if (filtered.length > 0) {
+            const latest = filtered[0];
+            const prev = filtered[1] || latest;
+            const accDelta = (latest.accuracy - prev.accuracy) * 100;
+            const latDelta = latest.latency_ms - prev.latency_ms;
+
+            setMetrics([
+                { label: 'Active Model', value: latest.model_name.substring(0, 15) + (latest.model_name.length > 15 ? '...' : ''), delta: 'Running', deltaType: 'neutral' },
+                { label: 'Accuracy', value: `${(latest.accuracy * 100).toFixed(1)}%`, delta: `${accDelta > 0 ? '+' : ''}${accDelta.toFixed(1)}%`, deltaType: accDelta >= 0 ? 'positive' : 'negative' },
+                { label: 'Latency', value: `${latest.latency_ms.toFixed(0)}ms`, delta: `${latDelta > 0 ? '+' : ''}${latDelta.toFixed(0)}ms`, deltaType: latDelta <= 0 ? 'positive' : 'negative' },
+                { label: 'Drift Score', value: `${(latest.data_drift_score).toFixed(2)}`, delta: latest.data_drift_score > 0.5 ? 'High Drift' : 'Stable', deltaType: latest.data_drift_score < 0.3 ? 'positive' : 'negative' },
+            ]);
+
+            const newChartData = filtered.slice(0, 20).reverse().map(m => ({
+                time: new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                acc: (m.accuracy * 100).toFixed(1)
+            }));
+            setChartData(newChartData);
+        } else {
+            // Empty state if no data for selected model
+            if (rawMetrics.length > 0 && selectedModel !== 'All') {
+                setChartData([]);
+                setMetrics([]);
+            }
+        }
+    }, [rawMetrics, selectedModel]);
 
     return (
         <div className="flex h-screen bg-aurora-bg overflow-hidden text-gray-200 font-sans selection:bg-aurora-blue/30">
@@ -227,6 +247,22 @@ export default function Dashboard() {
                             <span className="w-1.5 h-1.5 rounded-full bg-aurora-success animate-pulse" />
                             System Online
                         </span>
+
+                        {/* Model Selector */}
+                        {uniqueModels.length > 0 && (
+                            <div className="ml-4 flex items-center gap-2 bg-white/5 rounded-lg px-3 py-1 border border-white/10">
+                                <Bot className="w-4 h-4 text-aurora-blue" />
+                                <select
+                                    value={selectedModel}
+                                    onChange={(e) => setSelectedModel(e.target.value)}
+                                    className="bg-transparent text-sm text-gray-300 focus:outline-none cursor-pointer"
+                                >
+                                    <option value="All">All Applications</option>
+                                    {uniqueModels.map(m => <option key={m} value={m}>{m}</option>)}
+                                </select>
+                            </div>
+                        )}
+
                     </div>
                     <div className="flex items-center gap-4">
                         <button onClick={fetchData} className="p-2 text-gray-400 hover:text-white transition-colors">
