@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Rocket, LayoutDashboard, Bot, Activity, Brain,
     Settings, Bell, Search, RefreshCw, CheckCircle2,
-    AlertTriangle, Cpu, TrendingUp, Database, Command, ExternalLink, Zap, Wallet
+    AlertTriangle, Cpu, TrendingUp, Database, Command, ExternalLink, Zap, Wallet, LogOut
 } from 'lucide-react';
 import {
     LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar
@@ -95,7 +97,17 @@ export default function Dashboard() {
     // Memory State
     const [memoryQuery, setMemoryQuery] = useState('');
     const [memoryResults, setMemoryResults] = useState<any[]>([]);
+
     const [memoryStats, setMemoryStats] = useState<any>(null);
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            navigate('/login');
+        } catch (err) {
+            console.error("Logout failed:", err);
+        }
+    };
 
     const fetchData = async () => {
         try {
@@ -210,6 +222,14 @@ export default function Dashboard() {
                 </div>
 
                 <div className="p-4 border-t border-white/5 space-y-4">
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 transition-all text-sm font-medium group"
+                    >
+                        <LogOut className="w-4 h-4 group-hover:text-red-300" />
+                        <span>Log Out</span>
+                    </button>
+
                     {/* API Link */}
                     <a href={getApiDocsUrl()} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-3 px-4 py-2 bg-aurora-card/50 hover:bg-aurora-card rounded-lg border border-white/5 hover:border-aurora-blue/30 transition-all text-sm text-gray-400 hover:text-white group">
