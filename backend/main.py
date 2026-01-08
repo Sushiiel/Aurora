@@ -18,6 +18,9 @@ from backend.agents.critic_agent import CriticAgent
 from backend.agents.executor_agent import ExecutorAgent
 from backend.agents.base_agent import AgentDecisionType
 from backend.rag.memory_store import MemoryStore
+from backend.expense_api import router as expense_router
+from backend.aurora_monitor_api import router as aurora_monitor_router
+
 
 # Configure logging
 logging.basicConfig(
@@ -47,6 +50,12 @@ memory_store = MemoryStore(use_pinecone=False)  # Use FAISS for free tier
 planner_agent = PlannerAgent(memory_store)
 critic_agent = CriticAgent()
 executor_agent = ExecutorAgent()
+
+# Include expense tracker API routes
+app.include_router(expense_router)
+
+# Include AURORA monitoring API routes
+app.include_router(aurora_monitor_router)
 
 
 @app.on_event("startup")

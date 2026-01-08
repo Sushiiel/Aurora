@@ -5,6 +5,7 @@ import {
     Server, Shield, Activity
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { apiRequest, getApiUrl } from '../utils/api';
 
 export default function Connect() {
     const [modelName, setModelName] = useState('');
@@ -15,7 +16,9 @@ export default function Connect() {
     const generateCode = () => `import requests
 
 # Paste this where your model runs inference
-requests.post("http://localhost:8000/api/metrics", json={
+API_URL = "${getApiUrl() || 'YOUR_DEPLOYED_URL'}"
+
+requests.post(f"{API_URL}/api/metrics", json={
     "model_name": "${modelName || 'your-model-name'}",
     "accuracy": 0.95,        # Replace with real accuracy
     "latency_ms": 120,       # Replace with real latency
@@ -37,9 +40,8 @@ requests.post("http://localhost:8000/api/metrics", json={
         setIsTesting(true);
         setTestResult(null);
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/metrics`, {
+            const res = await apiRequest('/api/metrics', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     model_name: modelName,
                     accuracy: 0.88,
@@ -205,9 +207,7 @@ requests.post("http://localhost:8000/api/metrics", json={
                                 <div>
                                     <h4 className="text-blue-200 font-medium text-sm">Secure Ingestion</h4>
                                     <p className="text-blue-300/60 text-xs mt-1">
-                                        The endpoint is protected. Ensure your API Gateway sits between the public internet and
-                                        <span className="font-mono bg-white/10 px-1 rounded mx-1">localhost:8000</span>
-                                        in production.
+                                        The endpoint is protected. In production, your API will be available at your deployed URL.
                                     </p>
                                 </div>
                             </div>

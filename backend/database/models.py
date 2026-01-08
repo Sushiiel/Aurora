@@ -119,3 +119,30 @@ class DataStream(Base):
     
     # Metadata (renamed to avoid SQLAlchemy reserved keyword)
     meta_data = Column(JSON)
+
+
+class Expense(Base):
+    """Track user expenses for the Smart Expense Tracker"""
+    __tablename__ = "expenses"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    amount = Column(Float, nullable=False)
+    category = Column(String(100), nullable=False, index=True)
+    description = Column(String(500), nullable=False)
+    date = Column(DateTime(timezone=True), nullable=False)
+    user_email = Column(String(255), index=True)  # User's login email from Firebase
+    ai_suggestion = Column(Text, nullable=True)  # AI-generated insights
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class Budget(Base):
+    """Track budget limits per category"""
+    __tablename__ = "budgets"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    category = Column(String(100), unique=True, nullable=False, index=True)
+    limit = Column(Float, nullable=False)
+    spent = Column(Float, default=0.0)
+    percentage = Column(Float, default=0.0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())

@@ -4,12 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Rocket, LayoutDashboard, Bot, Activity, Brain,
     Settings, Bell, Search, RefreshCw, CheckCircle2,
-    AlertTriangle, Cpu, TrendingUp, Database, Command, ExternalLink, Zap
+    AlertTriangle, Cpu, TrendingUp, Database, Command, ExternalLink, Zap, Wallet
 } from 'lucide-react';
 import {
     LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar
 } from 'recharts';
 import clsx from 'clsx';
+import { apiRequest, getApiDocsUrl } from '../utils/api';
 
 // --- Types ---
 interface Metric {
@@ -97,7 +98,7 @@ export default function Dashboard() {
             setIsRefreshing(true);
 
             // Fetch Metrics
-            const metricsRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/metrics/latest?limit=50`);
+            const metricsRes = await apiRequest('/api/metrics/latest?limit=50');
             const metricsJson = await metricsRes.json();
             const fetchedMetrics: BackendMetric[] = metricsJson.metrics || [];
             setRawMetrics(fetchedMetrics);
@@ -124,13 +125,13 @@ export default function Dashboard() {
             }
 
             // Fetch Decisions
-            const decisionsRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/decisions?limit=20`);
+            const decisionsRes = await apiRequest('/api/decisions?limit=20');
             const decisionsJson = await decisionsRes.json();
             setDecisions(decisionsJson.decisions || []);
 
             // Fetch Memory Stats (Only once or actively)
             if (activeTab === 'memory') {
-                const memRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/memory/stats`);
+                const memRes = await apiRequest('/api/memory/stats');
                 setMemoryStats(await memRes.json());
             }
 
@@ -144,9 +145,8 @@ export default function Dashboard() {
     const handleMemorySearch = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/memory/search`, {
+            const res = await apiRequest('/api/memory/search', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query: memoryQuery, top_k: 3 })
             });
             const data = await res.json();
@@ -185,12 +185,13 @@ export default function Dashboard() {
 
                     <div className="pt-4 mt-2 border-t border-white/5">
                         <SidebarItem icon={Zap} label="Connect Model" active={false} onClick={() => navigate('/connect')} />
+                        <SidebarItem icon={Wallet} label="Expense Tracker" active={false} onClick={() => navigate('/expenses')} />
                     </div>
                 </div>
 
                 <div className="p-4 border-t border-white/5 space-y-4">
                     {/* API Link */}
-                    <a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer"
+                    <a href={getApiDocsUrl()} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-3 px-4 py-2 bg-aurora-card/50 hover:bg-aurora-card rounded-lg border border-white/5 hover:border-aurora-blue/30 transition-all text-sm text-gray-400 hover:text-white group">
                         <ExternalLink className="w-4 h-4 group-hover:text-aurora-blue" />
                         <span>API Playground</span>

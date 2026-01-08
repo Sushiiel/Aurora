@@ -14,11 +14,11 @@ class Settings(BaseSettings):
     # Application
     environment: str = "development"
     log_level: str = "INFO"
-    api_port: int = 8000
+    api_port: int = int(os.getenv("API_PORT", os.getenv("PORT", "8000")))
     streamlit_port: int = 8501
     
-    # GCP Configuration
-    gcp_project_id: str
+    # GCP Configuration (Optional)
+    gcp_project_id: Optional[str] = None
     gcp_region: str = "us-central1"
     google_application_credentials: Optional[str] = None
     
@@ -27,13 +27,13 @@ class Settings(BaseSettings):
     vertex_ai_model: str = "gemini-pro"
     
     # Database
-    database_url: str
+    database_url: str = "sqlite:///./aurora.db"
     postgres_user: str = "aurora_user"
-    postgres_password: str
+    postgres_password: Optional[str] = None
     postgres_db: str = "aurora"
     
-    # Pinecone
-    pinecone_api_key: str
+    # Pinecone (Optional)
+    pinecone_api_key: Optional[str] = None
     pinecone_environment: str = "us-west1-gcp"
     pinecone_index_name: str = "aurora-memory"
     
